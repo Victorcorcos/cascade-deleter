@@ -3,8 +3,7 @@
 </p>
 
 <p align="center">
-Cascade Deleter is a ruby gem designed to delete a set of items with all of their children, grandchildren, grandgrandchildren.
-I.e. delete items and all of their descending hierarchy.
+Cascade Deleter is a ruby gem designed to delete a set of items with all of their children, grandchildren, grandgrandchildren, i.e. delete items and all of their descending hierarchy.
 </p>
 
 
@@ -13,6 +12,10 @@ I.e. delete items and all of their descending hierarchy.
 Currently, **Rails** doesn't have a builtin way to delete items with all of their descending hierarchy, this type of deletion requires manual and tedious work, since you need to discover which items should be deleted for each descending classes, one by one.
 
 **Well, `CascadeDeleter` solves this issue perfectly with a oneliner command 🏆**
+
+```rb
+CascadeDeleter.new(MyModel.where(my_query)).delete_all
+```
 
 
 ## Example 🧑‍🏫
@@ -36,25 +39,6 @@ Now, imagine that you want to delete people with `id = 1`, `id = 2` and `id = 3`
 
 The correct solution would be to to delete it from the leaves to the root, which means deleting the items on this order:
 
-1. Delete the `words` that belongs to these `people` through the `word` → `page` → `book` → `people` relationship.
-1.1. Delete: `Word A`, `Word B`, `Word C`, `Word D`, `Word E`, `Word F`, `Word G`, `Word H`, `Word I`.
-
-2. Delete the `pages` that belongs to these `people` through the `page` → `book` → `people` relationship.
-2.1. Delete: `Page A`, `Page B`, `Page C`, `Page D`, `Page E`, `Page F`, `Page G`.
-
-3. Delete the `books` that belongs to these `people` through the `book` → `people` relationship.
-3.1. Delete: `Book 1`, `Book 2`, `Book 3`, `Book 4`.
-
-4. Finally deleting the `people`
-4.1. Delete: `Person 1`, `Person 2`, `Person 3`.
-
-With the `cascade-deleter` gem, **these deletions will be done automatically**.
-
-```rb
-CascadeDeleter.new(Person.where(id: [1, 2, 3]).delete_all
-# "Person.where(id: [1, 2, 3])" is used for this example, but you can place any ActiveRecord Relation as an argument here!
-```
-
 #### Deletions Order
 
 ① → ② → ③ → 🚩
@@ -62,6 +46,31 @@ CascadeDeleter.new(Person.where(id: [1, 2, 3]).delete_all
 <p align="center">
   <img src="https://i.imgur.com/uaf1R02.png" alt="Deletion Order"/>
 </p>
+
+⤷ That means...
+
+①. Delete the `words` that belongs to these `people` through the `word` → `page` → `book` → `people` relationship.
+
+(`Word A`, `Word B`, `Word C`, `Word D`, `Word E`, `Word F`, `Word G`, `Word H`, `Word I`)
+
+②. Delete the `pages` that belongs to these `people` through the `page` → `book` → `people` relationship.
+
+(`Page A`, `Page B`, `Page C`, `Page D`, `Page E`, `Page F`, `Page G`)
+
+③. Delete the `books` that belongs to these `people` through the `book` → `people` relationship.
+
+(`Book 1`, `Book 2`, `Book 3`, `Book 4`)
+
+🚩. Finally deleting the `people`
+
+(`Person 1`, `Person 2`, `Person 3`)
+
+With the `cascade-deleter` gem, **these deletions will be done automatically just executing the following oneliner command 🏆**
+
+```rb
+CascadeDeleter.new(Person.where(id: [1, 2, 3]).delete_all
+# "Person.where(id: [1, 2, 3])" is used for this example, but you can place any ActiveRecord Relation as an argument here!
+```
 
 
 ## Installation ⚙️
@@ -77,12 +86,16 @@ gem 'cascade-deleter'
 
 Just require the `cascade_deleter` library and use it! (You can test this on `rails console`)
 
-* Usage ①: **Hard** Delete of inactive Projects
+### Usage ①
+**Hard** Delete of inactive Projects
+
 ```rb
 CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all
 ```
 
-* Usage ②: **Hard** Delete of inactive Projects overriding the `joins` parameter.
+### Usage ②
+**Hard** Delete of inactive Projects overriding the `joins` parameter.
+
 You can override the `joins` parameter through the `custom_joins` attribute if you want more accurate relationships
 *in case the `joins` is not provided (**Usage ①**), the shortest path between each children class and the root class will be chosen for each join*
 
@@ -100,7 +113,9 @@ CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all(
 Attachment.joins({:subproject=>:project}).where(projects: { active: false }).delete_all
 ```
 
-* Usage ③: **Soft** Delete of *TO BE DELETED* Disciplines
+### Usage ③
+**Soft** Delete of *TO BE DELETED* Disciplines
+
 ```rb
 CascadeDeleter.new(Discipline.where(description: '[TO BE DELETED]')).delete_all(
   method: :soft
