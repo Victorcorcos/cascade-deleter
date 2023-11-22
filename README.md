@@ -22,7 +22,7 @@ As an illustrative example, let's think about the following classes structure:
 1. Class `Person` has_many books
 2. Class `Book` has_many pages
 3. Class `Page` has_many words
-4. Class `Word` has_many letters
+4. Class `Word`
 
 That means: `Person` is parent of a list of `Book`s, which is parent of a list of `Page`s, which is parent of a list of `Word`s.
 
