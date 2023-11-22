@@ -18,27 +18,6 @@ CascadeDeleter.new(MyModel.where(my_query)).delete_all
 ```
 
 
-## Why not use `dependent: :delete` / `dependent: :delete_all` instead of `CascadeDeleter`? 🤔
-
-1) The "dependent" solution not only will require you to add `dependent: :delete` / `dependent: :delete_all` on all the models you want to perform the cascade deletion, but it will still raise the `Mysql2::Error: Cannot delete or update a parent row` MySQL error while deleting the root items in case you don't have all of your database foreign keys setted up with `foreign_key: { on_delete: :cascade }`.
-
-So, for example, if you want to delete 10 Projects that has 50 descending application models, you would need to add `dependent: :delete` / `dependent: :delete_all` on the 50 application models as well as executing new migrations changing all of the foreign keys of each one of these **50 tables** to `foreign_key: { on_delete: :cascade }`.
-
-In a comparison, if you decide to use `CascadeDeleter`, you would just need to execute this one-liner command which achieves the same goal:
-
-```rb
-CascadeDeleter.where(Project.where(id: (1..10))).delete_all
-```
-
-2) Another advantage is that you can perform **Soft Deletions** instead of **Hard Deletions** on your data, which can be very in handy for systems where you want to deactivate items instead of removing them completely from the database.
-
-```rb
-CascadeDeleter.where(Project.where(id: (1..10))).delete_all(method: :soft)
-```
-
-3) Finally, you can also delete a set of root items instead of deleting items one-by-one, which increases the performance of the deletion operation overall. The above examples already show this feature, deleting 10 Projects at once, instead of deleting them one by one, which increases the performance.
-
-
 ## Example 🧑‍🏫
 
 As an illustrative example, let's think about the following classes structure:
@@ -149,6 +128,31 @@ CascadeDeleter.new(Discipline.where(description: '[TO BE DELETED]')).delete_all(
 t.boolean "active", default: true
 ```
 
+#### Why not use `dependent: :delete` / `dependent: :delete_all` instead of `CascadeDeleter`? 🤔
+
+1. 𝐒𝐢𝐦𝐩𝐥𝐢𝐜𝐢𝐭𝐲
+
+The "dependent" solution not only will require you to add `dependent: :delete` / `dependent: :delete_all` on all the models you want to perform the cascade deletion, but it will still raise the `Mysql2::Error: Cannot delete or update a parent row` MySQL error while deleting the root items in case you don't have all of your database foreign keys setted up with `foreign_key: { on_delete: :cascade }`.
+
+So, for example, if you want to delete 10 Projects that has 50 descending application models, you would need to add `dependent: :delete` / `dependent: :delete_all` on the 50 application models as well as executing new migrations changing all of the foreign keys of each one of these **50 tables** to `foreign_key: { on_delete: :cascade }`.
+
+In a comparison, if you decide to use `CascadeDeleter`, you would just need to execute this one-liner command which achieves the same goal:
+
+```rb
+CascadeDeleter.where(Project.where(id: (1..10))).delete_all
+```
+
+2. 𝐅𝐥𝐞𝐱𝐢𝐛𝐢𝐥𝐢𝐭𝐲
+
+Another advantage is that you can perform **Soft Deletions** instead of **Hard Deletions** on your data, which can be very in handy for systems where you want to deactivate items instead of removing them completely from the database.
+
+```rb
+CascadeDeleter.where(Project.where(id: (1..10))).delete_all(method: :soft)
+```
+
+3. 𝐏𝐞𝐫𝐟𝐨𝐫𝐦𝐚𝐧𝐜𝐞
+
+Finally, you can also decide to delete a set of root items instead of deleting these root items one-by-one. This can be shown on the above examples, which deletes 10 Projects instead of deleting the projects individually. This fact increases the performance, since a single SQL delete operation is executed for a desired table. This process is also applied on the descending classes.
 
 ## Contact
 
