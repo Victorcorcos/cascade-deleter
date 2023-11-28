@@ -18,9 +18,9 @@ require 'deactivator'
 
 ################ Debug ################
 # gem cleanup cascade-deleter
-# rm cascade-deleter-0.1.0.gem
+# rm cascade-deleter-X.Y.Z.gem
 # gem build cascade_deleter
-# gem install cascade-deleter-0.1.0.gem
+# gem install cascade-deleter-X.Y.Z.gem
 # ruby -Itest test/test_cascade_deleter.rb
 class CascadeDeleter
   def initialize(items)
