@@ -94,6 +94,15 @@ CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all
 ```
 
 ### Usage ②
+**Hard** Delete of inactive Projects by skipping some classes
+
+```rb
+CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all(
+  except: ['Audited::Audit', 'Picture', 'Attachment']
+)
+```
+
+### Usage ③
 **Hard** Delete of inactive Projects overriding the `joins` parameter.
 
 You can override the `joins` parameter through the `custom_joins` attribute if you want more accurate relationships
@@ -113,7 +122,7 @@ CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all(
 Attachment.joins({:subproject=>:project}).where(projects: { active: false }).delete_all
 ```
 
-### Usage ③
+### Usage ④
 **Soft** Delete of *TO BE DELETED* Disciplines
 
 ```rb
