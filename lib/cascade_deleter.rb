@@ -7,9 +7,12 @@ require 'deactivator'
 # 2. No validations or callbacks will be triggered
 # Usage 1: CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all
 # Usage 2: CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all(
+#            except: ['Audited::Audit', 'Picture', 'Attachment']
+#          )
+# Usage 3: CascadeDeleter.new(Project.unscoped.where(active: false)).delete_all(
 #            custom_joins: { 'Attachment' => {:subproject=>:project} }
 #          )
-# Usage 3: CascadeDeleter.new(Discipline.where_like(description: '[TO BE DELETED]')).delete_all(
+# Usage 4: CascadeDeleter.new(Discipline.where_like(description: '[TO BE DELETED]')).delete_all(
 #            method: :soft
 #          )
 
@@ -26,7 +29,8 @@ class CascadeDeleter
     @classes = classes
   end
 
-  def delete_all(custom_joins: {}, method: :hard)
+  def delete_all(except: [], custom_joins: {}, method: :hard)
+    @classes = @classes.without(*except)
     Deactivator.new(@classes).without_default_scopes do
       ActiveRecord::Base.connection.execute('SET FOREIGN_KEY_CHECKS = 0;')
 
@@ -43,7 +47,7 @@ class CascadeDeleter
   private
 
   def classes
-    Hierarchy.bottom_up_classes(@class).without('Audited::Audit')
+    Hierarchy.bottom_up_classes(@class)
   end
 
   def delete(klass, join, method)
