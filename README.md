@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://i.imgur.com/wUx1CYi.png" alt="Cascade Delete" width="200" height="200"/>
+  <img src="https://i.imgur.com/wUx1CYi.png" alt="Cascade Delete" width="40%" />
 </p>
 
 <p align="center">
